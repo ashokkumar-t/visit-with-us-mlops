@@ -13,6 +13,16 @@ This project implements a complete MLOps pipeline to predict whether a customer 
 - Docker
 - GitHub Actions
 
-## Project Structure
+## Data Preparation
 
-(To be updated throughout the project.)
+✔ Loaded dataset from Hugging Face
+
+✔ Cleaned dataset
+
+✔ Removed CustomerID
+
+✔ No missing values or duplicates
+
+✔ Created train/test datasets
+
+✔ Uploaded processed datasets to Hugging Face
