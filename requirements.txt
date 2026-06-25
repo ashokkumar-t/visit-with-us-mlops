@@ -9,3 +9,4 @@ datasets
 huggingface_hub
 joblib
 pyyaml
+pyarrow
