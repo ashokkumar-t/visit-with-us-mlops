@@ -1,0 +1,7 @@
+Model,Accuracy,Precision,Recall,F1,Best Parameters
+DecisionTree,1.0,1.0,1.0,1.0,"{'model__criterion': 'gini', 'model__max_depth': None, 'model__min_samples_split': 2}"
+RandomForest,1.0,1.0,1.0,1.0,"{'model__max_depth': None, 'model__min_samples_split': 2, 'model__n_estimators': 100}"
+Bagging,1.0,1.0,1.0,1.0,{'model__n_estimators': 100}
+AdaBoost,0.8423586040914561,0.7122302158273381,0.308411214953271,0.43043478260869567,"{'model__learning_rate': 1.0, 'model__n_estimators': 200}"
+GradientBoosting,0.9879663056558363,1.0,0.9376947040498442,0.9678456591639871,"{'model__learning_rate': 0.1, 'model__max_depth': 5, 'model__n_estimators': 100}"
+XGBoost,1.0,1.0,1.0,1.0,"{'model__learning_rate': 0.1, 'model__max_depth': 7, 'model__n_estimators': 200}"
