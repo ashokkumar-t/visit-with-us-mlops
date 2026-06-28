@@ -1,16 +1,61 @@
+############################################################
+# Base Image
+############################################################
+
 FROM python:3.11-slim
 
-WORKDIR /app
+############################################################
+# Environment Variables
+############################################################
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 
+############################################################
+# Working Directory
+############################################################
+
+WORKDIR /app
+
+############################################################
+# Install System Packages
+############################################################
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+############################################################
+# Install Python Dependencies
+############################################################
+
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+
+RUN pip install --upgrade pip
+
+RUN pip install -r requirements.txt
+
+############################################################
+# Copy Application
+############################################################
 
 COPY . .
 
-EXPOSE 8501
+############################################################
+# Expose Streamlit Port
+############################################################
 
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+EXPOSE 7860
+
+############################################################
+# Health Check
+############################################################
+
+HEALTHCHECK CMD curl --fail http://localhost:7860/_stcore/health || exit 1
+
+############################################################
+# Run Streamlit
+############################################################
+
+CMD ["streamlit", "run", "app.py", "--server.port=7860", "--server.address=0.0.0.0"]

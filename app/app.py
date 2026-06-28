@@ -1,79 +1,366 @@
-import joblib
+"""
+Visit With Us
+Wellness Tourism Prediction App
+
+Author: Ashokkumar T
+"""
+
 import pandas as pd
 import streamlit as st
-from huggingface_hub import hf_hub_download
 
-st.set_page_config(page_title="Visit with Us App", layout="centered")
+from predict import predict
+from model_loader import (
+    load_model,
+    model_information,
+)
 
-MODEL_REPO_ID = "itisashokkumar/visit-with-us-models"
-MODEL_FILENAME = "best_model.pkl"
+from config import (
+    APP_TITLE,
+    APP_SUBTITLE,
+    VERSION,
+    AUTHOR,
+)
 
-@st.cache_resource
-def load_model():
-    model_path = hf_hub_download(
-        repo_id=MODEL_REPO_ID,
-        filename=MODEL_FILENAME,
-        repo_type="model"
-    )
-    return joblib.load(model_path)
+##############################################################
+# PAGE CONFIG
+##############################################################
 
-st.title("Tourism Prediction App")
-st.write("Predict if a customer is likely to purchase the package before contacting them.")
+st.set_page_config(
+
+    page_title=APP_TITLE,
+
+    page_icon="✈️",
+
+    layout="wide",
+
+    initial_sidebar_state="expanded"
+
+)
+
+##############################################################
+# LOAD MODEL
+##############################################################
 
 try:
+
     model = load_model()
+
 except Exception as e:
-    st.error(f"Model could not be loaded: {e}")
+
+    st.error(e)
+
     st.stop()
 
-age = st.number_input("Age", min_value=18, max_value=100, value=35)
-typeofcontact = st.selectbox("Type of Contact", ["Company Invited", "Self Enquiry"])
-occupation = st.selectbox("Occupation", ["Salaried", "Small Business", "Large Business", "Freelancer"])
-gender = st.selectbox("Gender", ["Male", "Female"])
-numberofpersonvisiting = st.number_input("Number of Person Visiting", min_value=1, max_value=20, value=2)
-preferredpropertystar = st.number_input("Preferred Property Star", min_value=1.0, max_value=5.0, value=3.0)
-maritalstatus = st.selectbox("Marital Status", ["Single", "Married", "Divorced"])
-numberoftrips = st.number_input("Number of Trips", min_value=0.0, max_value=20.0, value=2.0)
-passport = st.selectbox("Passport", [0, 1])
-owncar = st.selectbox("Own Car", [0, 1])
-numberofchildrenvisiting = st.number_input("Number of Children Visiting", min_value=0.0, max_value=10.0, value=0.0)
-designation = st.selectbox("Designation", ["Executive", "Manager", "Senior Manager", "AVP", "VP"])
-monthlyincome = st.number_input("Monthly Income", min_value=1000.0, value=25000.0)
-pitchsatisfactionscore = st.number_input("Pitch Satisfaction Score", min_value=1.0, max_value=5.0, value=3.0)
-productpitched = st.selectbox("Product Pitched", ["Basic", "Deluxe", "Standard", "Super Deluxe", "King"])
-numberoffollowups = st.number_input("Number of Followups", min_value=0.0, max_value=10.0, value=3.0)
-durationofpitch = st.number_input("Duration of Pitch", min_value=1.0, max_value=100.0, value=15.0)
-citytier = st.selectbox("City Tier", [1, 2, 3])
+##############################################################
+# SIDEBAR
+##############################################################
+
+st.sidebar.title(APP_TITLE)
+
+st.sidebar.markdown("---")
+
+info = model_information(model)
+
+st.sidebar.subheader("Model")
+
+st.sidebar.write(info["Model Type"])
+
+if "Pipeline" in info:
+
+    st.sidebar.write(info["Pipeline"])
+
+st.sidebar.markdown("---")
+
+st.sidebar.subheader("Version")
+
+st.sidebar.write(VERSION)
+
+st.sidebar.subheader("Author")
+
+st.sidebar.write(AUTHOR)
+
+##############################################################
+# HEADER
+##############################################################
+
+st.title(APP_TITLE)
+
+st.caption(APP_SUBTITLE)
+
+st.markdown("---")
+
+##############################################################
+# CUSTOMER DETAILS
+##############################################################
+
+st.header("Customer Information")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    age = st.number_input(
+        "Age",
+        min_value=18,
+        max_value=100,
+        value=35
+    )
+
+    gender = st.selectbox(
+        "Gender",
+        [
+            "Male",
+            "Female"
+        ]
+    )
+
+    occupation = st.selectbox(
+        "Occupation",
+        [
+            "Salaried",
+            "Small Business",
+            "Large Business",
+            "Freelancer"
+        ]
+    )
+
+    marital_status = st.selectbox(
+        "Marital Status",
+        [
+            "Single",
+            "Married",
+            "Divorced"
+        ]
+    )
+
+    monthly_income = st.number_input(
+        "Monthly Income",
+        min_value=1000.0,
+        value=30000.0
+    )
+
+with col2:
+
+    city_tier = st.selectbox(
+        "City Tier",
+        [
+            1,
+            2,
+            3
+        ]
+    )
+
+    passport = st.selectbox(
+        "Passport",
+        [0,1]
+    )
+
+    own_car = st.selectbox(
+        "Own Car",
+        [0,1]
+    )
+
+    designation = st.selectbox(
+        "Designation",
+        [
+            "Executive",
+            "Manager",
+            "Senior Manager",
+            "AVP",
+            "VP"
+        ]
+    )
+
+##############################################################
+# TRAVEL DETAILS
+##############################################################
+
+st.header("Travel Information")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    contact = st.selectbox(
+        "Type of Contact",
+        [
+            "Company Invited",
+            "Self Enquiry"
+        ]
+    )
+
+    persons = st.number_input(
+        "Number of Persons Visiting",
+        min_value=1,
+        max_value=20,
+        value=2
+    )
+
+    children = st.number_input(
+        "Children Visiting",
+        min_value=0,
+        max_value=10,
+        value=0
+    )
+
+with col2:
+
+    hotel = st.slider(
+        "Preferred Property Star",
+        1,
+        5,
+        3
+    )
+
+    trips = st.number_input(
+        "Trips Per Year",
+        min_value=0,
+        max_value=20,
+        value=2
+    )
+
+##############################################################
+# SALES DETAILS
+##############################################################
+
+st.header("Sales Interaction")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    product = st.selectbox(
+        "Product Pitched",
+        [
+            "Basic",
+            "Standard",
+            "Deluxe",
+            "Super Deluxe",
+            "King"
+        ]
+    )
+
+    followups = st.slider(
+        "Follow Ups",
+        0,
+        10,
+        3
+    )
+
+with col2:
+
+    pitch_score = st.slider(
+        "Pitch Satisfaction",
+        1,
+        5,
+        3
+    )
+
+    duration = st.slider(
+        "Pitch Duration",
+        1,
+        100,
+        15
+    )
+
+##############################################################
+# CREATE DATAFRAME
+##############################################################
 
 input_df = pd.DataFrame([{
+
     "Age": age,
-    "TypeofContact": typeofcontact,
-    "CityTier": citytier,
+
+    "TypeofContact": contact,
+
+    "CityTier": city_tier,
+
     "Occupation": occupation,
+
     "Gender": gender,
-    "NumberOfPersonVisiting": numberofpersonvisiting,
-    "PreferredPropertyStar": preferredpropertystar,
-    "MaritalStatus": maritalstatus,
-    "NumberOfTrips": numberoftrips,
+
+    "NumberOfPersonVisiting": persons,
+
+    "PreferredPropertyStar": hotel,
+
+    "MaritalStatus": marital_status,
+
+    "NumberOfTrips": trips,
+
     "Passport": passport,
-    "OwnCar": owncar,
-    "NumberOfChildrenVisiting": numberofchildrenvisiting,
+
+    "OwnCar": own_car,
+
+    "NumberOfChildrenVisiting": children,
+
     "Designation": designation,
-    "MonthlyIncome": monthlyincome,
-    "PitchSatisfactionScore": pitchsatisfactionscore,
-    "ProductPitched": productpitched,
-    "NumberOfFollowups": numberoffollowups,
-    "DurationOfPitch": durationofpitch
+
+    "MonthlyIncome": monthly_income,
+
+    "PitchSatisfactionScore": pitch_score,
+
+    "ProductPitched": product,
+
+    "NumberOfFollowups": followups,
+
+    "DurationOfPitch": duration
+
 }])
 
-if st.button("Predict"):
-    pred = model.predict(input_df)[0]
-    if pred == 1:
-        st.success("Prediction: Likely to Purchase")
-    else:
-        st.warning("Prediction: Not Likely to Purchase")
-    if hasattr(model, "predict_proba"):
-        prob = model.predict_proba(input_df)[0][1]
-        st.info(f"Predicted purchase probability: {prob:.2%}")
+##############################################################
+# PREDICTION
+##############################################################
 
-    st.write("Raw prediction:", pred)
+st.markdown("---")
+
+if st.button(
+    "Predict Purchase",
+    use_container_width=True
+):
+
+    with st.spinner("Predicting..."):
+
+        result = predict(input_df)
+
+    st.subheader("Prediction Result")
+
+    if result["prediction"] == 1:
+
+        st.success(result["label"])
+
+    else:
+
+        st.warning(result["label"])
+
+    if result["probability"] is not None:
+
+        st.metric(
+
+            "Purchase Probability",
+
+            f"{result['probability']:.2%}"
+
+        )
+
+##############################################################
+# INPUT DATA
+##############################################################
+
+with st.expander("View Customer Data"):
+
+    st.dataframe(
+        input_df,
+        use_container_width=True
+    )
+
+##############################################################
+# FOOTER
+##############################################################
+
+st.markdown("---")
+
+st.caption(
+
+    f"{APP_TITLE} | Version {VERSION} | Developed by {AUTHOR}"
+
+)
